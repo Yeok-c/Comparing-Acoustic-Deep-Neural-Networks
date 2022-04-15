@@ -46,6 +46,6 @@ class Params:
   batchnorm_center: bool = True
   batchnorm_scale: bool = False
   batchnorm_epsilon: float = 1e-4
-  classifier_activation: str = 'sigmoid'
+  classifier_activation: str = 'softmax'
 
   tflite_compatible: bool = False

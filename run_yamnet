@@ -3,17 +3,19 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_io as tfio
 import random
-from sklearn.metrics import accuracy_score
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+import datetime
 
 sys.path.append('src')
-import models.yamnet_tf2.yamnet_modified as yamnet
-import models.yamnet_tf2.params as yamnet_params
-params = yamnet_params.Params(sample_rate=16000, patch_hop_seconds=0.25)
+from models.get_models import get_model
+import models.yamnet_tf2.params as params
+params = params.Params(sample_rate=16000, patch_hop_seconds=0.25)
 
 # from dataload_utils.data_load import get_dataset, get_filenames_and_classnames_list
 import dataload_utils.data_load as data_load
 from dataload_utils.data_aug import mix_up
+
+
+MODEL_NAME='YAMNET'
 
 SEED = 42
 random.seed(SEED)
@@ -28,7 +30,6 @@ print("classes: {}, num_classes: {}".format(classes, num_classes))
 
 # To do real shuffling
 AUTOTUNE = tf.data.AUTOTUNE
-NUM_CLASSES = len(classes)
 batch_size=64
 random.shuffle(filenames_all)
 filenames_train = filenames_all[:int(len(filenames_all)*0.7)]
@@ -63,9 +64,6 @@ test_dataset = test_dataset.cache().prefetch(AUTOTUNE)
 # length = len(list(dataset_train_eval))
 # print("Total length of dataset: ", length)
 
-import datetime
-MODEL_NAME='YAMNET'
-
 # Paths
 training_path = "./training/{}".format(datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
 
@@ -83,19 +81,18 @@ cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=ckp_path,
 tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_path, histogram_freq=1)
 
 # Declare model
-Yamnet = yamnet.Yamnet_modified(NUM_CLASSES)
-yamnet_model = Yamnet.model()
+model = get_model(MODEL_NAME)
 
-yamnet_model.compile(
+model.compile(
     optimizer=tf.keras.optimizers.Adam(),
     loss=tf.keras.losses.CategoricalCrossentropy(), #from_logits=True
     metrics=['accuracy'],
 )
 
 # Fit model
-yamnet_model.fit(train_dataset, validation_data = eval_dataset, epochs=40, 
+model.fit(train_dataset, validation_data = eval_dataset, epochs=40, 
     verbose=1, callbacks=[cp_callback,tensorboard_callback])
 
 # Evaluate performance of model with test fold (that it wasn't trained on)
-yamnet_model.load_weights(ckp_path)
-loss, acc = yamnet_model.evaluate(test_dataset, verbose=2)
+model.load_weights(ckp_path)
+loss, acc = model.evaluate(test_dataset, verbose=2)
