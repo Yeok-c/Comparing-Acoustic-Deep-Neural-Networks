@@ -6,7 +6,7 @@ def get_model(MODEL):
     if MODEL == 'VGGISH':
         from .vggish_tf2 import vggish as vgk
         base_model = vgk.VGGish(include_top=True)
-        base_model.load_weights("C:/Users/User/Documents/comparing_acoustic_deep_neural_networks/src/models/vggish_tf2/model/vggish_audioset_weights.h5")
+        base_model.load_weights("C:/Users/User/Documents/comparing_acoustic_deep_neural_networks/src/models/vggish_tf2/vggish_audioset_weights.h5")
         x = layers.GlobalAveragePooling2D()(base_model.layers[-6].output)
         # Up until pooling layer
     
