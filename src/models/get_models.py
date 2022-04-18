@@ -1,7 +1,7 @@
 from tensorflow.keras import layers, Model
 import tensorflow as tf
 
-num_classes = 6
+num_classes = 4
 def get_model(MODEL):
     if MODEL == 'VGGISH':
         from .vggish_tf2 import vggish as vgk
@@ -22,7 +22,7 @@ def get_model(MODEL):
     
     if MODEL == 'YAMNET':
         from .yamnet_tf2 import yamnet_class as yamnet
-        Yamnet = yamnet.Yamnet(6)
+        Yamnet = yamnet.Yamnet(num_classes)
         base_model = Yamnet.model()
         base_model.load_weights("C:/Users/User/Documents/comparing_acoustic_deep_neural_networks/src/models/yamnet_tf2/yamnet.h5")
         x = layers.GlobalAveragePooling2D()(base_model.layers[-4].output)

@@ -4,6 +4,7 @@ import models.yamnet_tf2.features as features_lib
 import models.yamnet_tf2.yamnet_modified as yamnet
 import models.yamnet_tf2.params as yamnet_params
 from .data_aug import augment_spec
+import librosa
 
 class Dataset_loader:
     def __init__(self, parent_dir, params):
@@ -45,8 +46,16 @@ class Dataset_loader:
         return tf.expand_dims(features, axis=-1)
         # return log_mel_spectrogram
 
-    def _get_embeddings_and_features(self, filename):
+    def get_embeddings_and_features(self, filename):
         waveform = self._get_waveform_no_label(filename)
+        waveform_padded = features_lib.pad_waveform(waveform, self.params)
+        log_mel_spectrogram, features = features_lib.waveform_to_log_mel_spectrogram_patches(
+            waveform_padded, self.params)
+        return log_mel_spectrogram, tf.expand_dims(features, axis=-1)
+    
+    def get_embeddings_and_features_librosa(self, filename):
+        waveform, sr = librosa.load(filename, sr=16000)
+        # waveform = self._get_waveform_no_label(filename)
         waveform_padded = features_lib.pad_waveform(waveform, self.params)
         log_mel_spectrogram, features = features_lib.waveform_to_log_mel_spectrogram_patches(
             waveform_padded, self.params)
