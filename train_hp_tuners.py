@@ -58,7 +58,7 @@ if __name__ == "__main__":
     # import datetime
 
     sys.path.append('src')
-    from models.get_models import get_model
+    from models.get_models import get_model, model_builder
     import models.yamnet_tf2.params as params
     params = params.Params(sample_rate=16000, patch_hop_seconds=PATCH_HOP_DISTANCE) # 0.25
 
@@ -129,15 +129,30 @@ if __name__ == "__main__":
                                                     verbose=1)
     # Create a tensorboard callback                         
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_path, histogram_freq=1)
+    stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
 
-    # Declare model
-    model = get_model(MODEL_NAME, dense_units = DENSE_UNITS)
-    model.summary()
-    model.compile(
-        optimizer=tf.keras.optimizers.Adam(),
-        loss=tf.keras.losses.CategoricalCrossentropy(), #from_logits=True
-        metrics=['accuracy'],
-    )
+    import keras_tuner as kt
+    tuner = kt.Hyperband(model_builder,
+                    objective='val_accuracy',
+                    max_epochs=10,
+                    factor=3,
+                    directory='my_dir',
+                    project_name='intro_to_kt')    
+    
+    tuner.search(train_dataset, validation_data = eval_dataset, epochs=50, callbacks=[stop_early])
+    
+    best_hps=tuner.get_best_hyperparameters(num_trials=1)[0]
+
+    print(f"""
+    The hyperparameter search is complete. 
+    Optimal Dense: {best_hps.get('units')} 
+    Optimal Dropout: {best_hps.get('dropout')}
+    Optimal lr for optimizer: {best_hps.get('learning_rate')}.
+    """)
+    
+    model = tuner.hypermodel.build(best_hps)
+    # Fit model from scratch
+
     if MODEL_NAME=="YAMNET" or MODEL_NAME=="VGGISH":
         # Transfer learn
         # make all layers untrainable by freezing weights (except for last layer)
@@ -164,6 +179,7 @@ if __name__ == "__main__":
         # Fit model from scratch
         model.fit(train_dataset, validation_data = eval_dataset, epochs=EPOCHS, 
             verbose=1, callbacks=[cp_callback,tensorboard_callback])
+
 
     # Evaluate performance of model with test fold (that it wasn't trained on)
     model.load_weights(ckp_path)
