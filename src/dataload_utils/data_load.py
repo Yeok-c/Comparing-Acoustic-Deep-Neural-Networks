@@ -68,8 +68,8 @@ class Dataset_loader:
         for CLASS in classes:
             filenames_class=[]
             for layer in range(3): # look maximum 3 layers down
-                path = os.path.join(self.parent_dir, CLASS, "**\\"*layer,"*.wav")
-                filenames = glob.glob(os.path.join(self.parent_dir, CLASS, "**\\"*layer,"*.wav"))
+                path = os.path.join(self.parent_dir, CLASS, "**/"*layer,"*.wav")
+                filenames = glob.glob(os.path.join(self.parent_dir, CLASS, "**/"*layer,"*.wav"))
                 try:
                     filenames_class.extend(filenames)
                     # print(filenames_class)
