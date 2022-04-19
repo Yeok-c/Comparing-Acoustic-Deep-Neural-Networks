@@ -6,8 +6,8 @@ import tensorflow as tf
 num_classes = 4
 def get_model(MODEL, dense_units=128, dropout_rate=0.1):
     if MODEL == 'VGGISH':
-        import models.vggish_tf2 as vgk
-        base_model = vgk.VGGish(include_top=True)
+        from models.vggish_tf2 import vggish
+        base_model = vggish.VGGish()
         base_model.load_weights("./src/models/vggish_tf2/vggish_audioset_weights.h5")
         x = layers.GlobalAveragePooling2D()(base_model.layers[-6].output)
         # Up until pooling layer
@@ -38,7 +38,7 @@ def get_model(MODEL, dense_units=128, dropout_rate=0.1):
         base_model = tf.keras.applications.MobileNetV3Large(
             input_shape=(96,64,1), alpha=1.0, include_top=True, weights=None, include_preprocessing=False)
         # x = layers.GlobalAveragePooling2D()(MobileNetV1Small.layers[-4].output)
-        x = base_model.layers[-3].output
+        x = layers.Flatten()(base_model.layers[-5].output)
     
     x = layers.Dropout(dropout_rate*2)(x)
     x = layers.Dense(dense_units)(x)
@@ -57,7 +57,7 @@ def get_model(MODEL, dense_units=128, dropout_rate=0.1):
     return model
 
 def model_builder_yamnet(hp):
-    import models.yamnet_tf2 as yamnet
+    from models.yamnet_tf2 import yamnet
     Yamnet = yamnet.Yamnet(num_classes)
     base_model = Yamnet.model()
     base_model.load_weights("./src/models/yamnet_tf2/yamnet.h5")
@@ -85,8 +85,8 @@ def model_builder_yamnet(hp):
 
 
 def model_builder_vggish(hp):
-    import models.vggish_tf2 as vgk
-    base_model = vgk.VGGish(include_top=True)
+    from models.vggish_tf2 import vggish
+    base_model = vggish.VGGish()
     base_model.load_weights("./src/models/vggish_tf2/vggish_audioset_weights.h5")
     x = layers.GlobalAveragePooling2D()(base_model.layers[-6].output)
     # Up until pooling layer

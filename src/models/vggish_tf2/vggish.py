@@ -15,18 +15,12 @@ from tensorflow.keras.models import Model
 import tensorflow.keras.layers as tfkl
 import tensorflow.keras.backend as K
 
-from .postprocess import Postprocess
 from . import params
 
 log = logging.getLogger(__name__)
 
 
-def VGGish(pump=None,
-           input_shape=None,
-           pooling='avg',
-           weights='audioset',
-           name='vggish',
-           compress=False):
+def VGGish(name='vggish'):
     '''A Keras implementation of the VGGish architecture.
 
     Arguments:
@@ -91,14 +85,13 @@ def VGGish(pump=None,
         x = dense(4096, name='fc1/fc1_2')(x)
         x = dense(params.EMBEDDING_SIZE, name='fc2')(x)
 
-        globalpool = (
-            tfkl.GlobalAveragePooling2D() if pooling == 'avg' else
-            tfkl.GlobalMaxPooling2D() if pooling == 'max' else None)
+        # globalpool = (
+        #     tfkl.GlobalAveragePooling2D() if pooling == 'avg' else
+        #     tfkl.GlobalMaxPooling2D() if pooling == 'max' else None)
 
-        if globalpool:
-            x = globalpool(x)
+        # x = globalpool(x)
             
         # Create model
         model = Model(inputs, x, name='model')
-        model.load_weights("D:\\Github\\VGGish\\vggish_keras\\model\\audioset_weights.h5")
+        # model.load_weights("D:\\Github\\VGGish\\vggish_keras\\model\\audioset_weights.h5")
     return model

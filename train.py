@@ -43,6 +43,7 @@ if __name__ == "__main__":
     
     print('Dataset directory:', DATASET_DIR)
     print('Number of epochs:', EPOCHS)
+    print('Number of Dense Units in Classifier:', DENSE_UNITS)
     print('Patch Hop Distance for Embedding:', PATCH_HOP_DISTANCE)
     print('Network Architecture:', MODEL_NAME)
     print('Random Seed: ', SEED)
@@ -187,11 +188,19 @@ if __name__ == "__main__":
     accuracy = accuracy_score(y_trues, y_preds)
     print("Testing accuracy: ", accuracy)
 
-    fig, ax = plt.subplots()
-    cm = ConfusionMatrixDisplay.from_predictions(
-        y_trues, y_preds, normalize='true', 
-        display_labels=classes, xticks_rotation=90,
-        ax=ax
-    )
-    ax.set_title("{}, Acc: {:02f}".format(model_training_path, accuracy))
+
+    cm, ax = plt.subplots(figsize=(10,10))
+    try:
+        cm = ConfusionMatrixDisplay.from_predictions(
+            y_trues, y_preds, normalize='true', 
+            display_labels=classes, xticks_rotation=90,
+            ax=ax
+        )
+    except:
+        cm = ConfusionMatrixDisplay.from_predictions(
+            y_trues, y_preds, normalize='true', 
+            xticks_rotation=90,
+            ax=ax
+        )
+    ax.set_title("{}, Acc: {:02f}".format(model_training_path.split("/")[-1], accuracy))
     cm.figure_.savefig(cfm_path,dpi=300)
