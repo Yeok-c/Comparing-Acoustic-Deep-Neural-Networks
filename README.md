@@ -18,3 +18,7 @@
 # Real time inference
 - Run record_audio.py on terminal to record wave files
 - Run display_spec_rt_2.ipynb to visualize mel-spec and predictions in real time
+
+# Visualize Weights
+- For conventional DNN models, run display_weights.ipynb to see convolutional filters
+- For Attention based based models, attention visualization is done within their respective notebooks
