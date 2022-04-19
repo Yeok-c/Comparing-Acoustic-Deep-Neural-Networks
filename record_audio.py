@@ -22,16 +22,13 @@ DEVICE_ID=1
 print('Recording')
 
 try:
-    # os.sys("del /S ./test_save_files/**")    
     os.sys("mkdir ./test_save_files")
+    try:
+        os.sys("del /S ./test_save_files/**")    
+    except:
+        pass
 except:
     pass
-
-# try:
-#     # pass
-#     !del /S .\test_save_files\**
-# except:
-#     pass
 
 
 FILENAME = "./test_save_files/output"

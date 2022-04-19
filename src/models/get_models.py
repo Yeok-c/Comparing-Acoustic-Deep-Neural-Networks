@@ -2,12 +2,13 @@ from sklearn.model_selection import learning_curve
 from tensorflow.keras import layers, Model
 import tensorflow as tf
 
+
 num_classes = 4
-def get_model(MODEL, dense_units=128, dropout_rate=0.2):
+def get_model(MODEL, dense_units=128, dropout_rate=0.1):
     if MODEL == 'VGGISH':
-        from .vggish_tf2 import vggish as vgk
+        import models.vggish_tf2 as vgk
         base_model = vgk.VGGish(include_top=True)
-        base_model.load_weights("C:/Users/User/Documents/comparing_acoustic_deep_neural_networks/src/models/vggish_tf2/vggish_audioset_weights.h5")
+        base_model.load_weights("./src/models/vggish_tf2/vggish_audioset_weights.h5")
         x = layers.GlobalAveragePooling2D()(base_model.layers[-6].output)
         # Up until pooling layer
     
@@ -22,10 +23,10 @@ def get_model(MODEL, dense_units=128, dropout_rate=0.2):
         x = layers.GlobalAveragePooling2D()(base_model.layers[-1].output)    
     
     if MODEL == 'YAMNET':
-        from .yamnet_tf2 import yamnet_class as yamnet
+        from models.yamnet_tf2 import yamnet
         Yamnet = yamnet.Yamnet(num_classes)
         base_model = Yamnet.model()
-        base_model.load_weights("C:/Users/User/Documents/comparing_acoustic_deep_neural_networks/src/models/yamnet_tf2/yamnet.h5")
+        base_model.load_weights("./src/models/yamnet_tf2/yamnet.h5")
         x = layers.GlobalAveragePooling2D()(base_model.layers[-4].output)
     
     if MODEL == 'MobileNetV2':
@@ -55,18 +56,38 @@ def get_model(MODEL, dense_units=128, dropout_rate=0.2):
     )
     return model
 
-
-
-def model_builder(hp):
-    # from .yamnet_tf2 import yamnet_class as yamnet
-    # Yamnet = yamnet.Yamnet(num_classes)
-    # base_model = Yamnet.model()
-    # base_model.load_weights("C:/Users/User/Documents/comparing_acoustic_deep_neural_networks/src/models/yamnet_tf2/yamnet.h5")
-    # x = layers.GlobalAveragePooling2D()(base_model.layers[-4].output)
+def model_builder_yamnet(hp):
+    import models.yamnet_tf2 as yamnet
+    Yamnet = yamnet.Yamnet(num_classes)
+    base_model = Yamnet.model()
+    base_model.load_weights("./src/models/yamnet_tf2/yamnet.h5")
+    x = layers.GlobalAveragePooling2D()(base_model.layers[-4].output)
     
-    from .vggish_tf2 import vggish as vgk
+    dense_units = hp.Int('units', min_value=128, max_value=1024, step=128)
+    dropout_rate = hp.Float('dropout', min_value=0.1, max_value=0.3, step=0.1)
+    hp_learning_rate = hp.Choice('learning_rate', values=[1e-2, 1e-3, 1e-4])
+
+    x = layers.Dropout(dropout_rate*2)(x)
+    x = layers.Dense(dense_units)(x)
+    x = layers.Dropout(dropout_rate)(x)
+    x = layers.Dense(64)(x)
+    
+    logits = layers.Dense(units=num_classes, use_bias=True)(x)
+    predictions = layers.Activation(activation='Softmax')(logits) # <- Sigmoid in some original implementations though
+    model = Model(base_model.input, predictions) 
+    # model.summary()    # model.summary()
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(learning_rate=hp_learning_rate),
+        loss=tf.keras.losses.CategoricalCrossentropy(), #from_logits=True
+        metrics=['accuracy'],
+    )
+    return model
+
+
+def model_builder_vggish(hp):
+    import models.vggish_tf2 as vgk
     base_model = vgk.VGGish(include_top=True)
-    base_model.load_weights("C:/Users/User/Documents/comparing_acoustic_deep_neural_networks/src/models/vggish_tf2/vggish_audioset_weights.h5")
+    base_model.load_weights("./src/models/vggish_tf2/vggish_audioset_weights.h5")
     x = layers.GlobalAveragePooling2D()(base_model.layers[-6].output)
     # Up until pooling layer
         
