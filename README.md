@@ -18,7 +18,7 @@
 ## Single Model Train
 - train.py requires several arguments. Check train_all.py for default values 
 
-      python train_hp_tuners.py -d <dataset_path> -u <number of dense units> -a <model architecture> -e <epochs> 
+      python train.py -d <dataset_path> -u <number of dense units> -a <model architecture> -e <epochs> 
       -s <random_seed> -p <patch_hop_distance> -t <time_now (or other argument for marking training log)> -r <ratio of files> 
       
 ## Real time inference
