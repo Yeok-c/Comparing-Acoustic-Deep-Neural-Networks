@@ -1,4 +1,6 @@
 # WIP Repo for Comparing Acoustic Deep Neural Networks
+Come back in a few days for one-click setup and run
+
 ## Architectures Compared:
 - MobileNetV1 (YAMNET, Transfer learned)
 - MobileNetV2
