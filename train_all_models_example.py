@@ -4,13 +4,12 @@ DATETIME_NOW = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 SEED = 1
 NUM_DENSE_UNITS = 128
 
-Network_architectures = ['VGGISH', 'EfficientNetV1_B0', 'EfficientNetV2_B0',
-                         'YAMNET', 'MobileNetV2', 'MobileNetV3']
+Network_architectures = ['VGGISH','YAMNET', 'MobileNetV2', 'MobileNetV3', 'EfficientNetV1_B0', 'EfficientNetV2_B0']
 
 for MODEL_NAME in Network_architectures:
         # print(MODEL_NAME)
         command="""python train.py -d ./datasets/cer_dataset_16k_resampled_split/ \
-        -u {} -a {} -e 8 -s {} -p 1 -t {} -r 0.05""".format(
+        -u {} -a {} -e 8 -s {} -p 1 -t {} -r 0.01""".format(
                         NUM_DENSE_UNITS, MODEL_NAME, SEED, DATETIME_NOW)
         print(command)
         os.system(command)
