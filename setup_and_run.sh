@@ -7,4 +7,4 @@ rm cer_dataset_16k_resampled_split.tar.gz
 curl -L -o ./src/models/vggish_tf2/vggish_audioset_weights.h5 "https://www.dropbox.com/s/nwh04df77tfkgfx/vggish_audioset_weights.h5?dl=1"
 apt-get install libsndfile1-dev -y
 pip install -r requirements.txt
-python train_all_models.py
+python train_all_models_example.py

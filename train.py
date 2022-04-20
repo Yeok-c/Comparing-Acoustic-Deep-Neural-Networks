@@ -49,7 +49,7 @@ if __name__ == "__main__":
     print('Random Seed: ', SEED)
     print('Date Time Now: ', DATETIME_NOW)
     print('Ratio Of Files: ', FILE_RATIO)
-    
+    FLATMAP_TESTSET = False
     
     import os, sys, glob
     import numpy as np
@@ -106,7 +106,7 @@ if __name__ == "__main__":
         )
 
     eval_dataset = dataset_loader.get_dataset(filenames_eval, augment=False).shuffle(batch_size*2).batch(batch_size)
-    test_dataset = dataset_loader.get_dataset(filenames_test, augment=False, flat_map=False).shuffle(batch_size*2)#.batch(batch_size)
+    test_dataset = dataset_loader.get_dataset(filenames_test, augment=False, flat_map=FLATMAP_TESTSET).shuffle(batch_size*2)#.batch(batch_size)
 
     train_dataset = train_dataset.cache().prefetch(AUTOTUNE)
     eval_dataset = eval_dataset.cache().prefetch(AUTOTUNE)
@@ -168,17 +168,24 @@ if __name__ == "__main__":
 
     # Evaluate performance of model with test fold (that it wasn't trained on)
     model.load_weights(ckp_path)
-    loss, acc = model.evaluate(test_dataset, verbose=2)
     
+    loss, acc = model.evaluate(test_dataset, verbose=2)
 
     from sklearn.metrics import accuracy_score
     from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
     import matplotlib.pyplot as plt
+    from statistics import mode
     # Get y_preds = predictions made by model
     y_preds,y_trues = [],[]
     for x_test, y_true in list(test_dataset):
-        y_pred = np.argmax(model.predict(x_test), axis=1)
-        y_true = np.argmax(y_true, axis=1)
+        if FLATMAP_TESTSET == True:
+            y_pred = np.argmax(model.predict(x_test), axis=1) # use this instead if flat_mapped
+            y_true = np.argmax(y_true, axis=1)
+        else:
+            y_pred = np.argmax(model.predict(x_test), axis=1)
+            y_pred = [mode(y_pred)] # Take mode of predictions (averaged score over multiple features in segment)
+            y_true = [np.argmax(y_true, axis=1)[0]] # Take only one (they're all the same label in segment)
+            
         y_preds.extend(y_pred)
         y_trues.extend(y_true)
     y_trues = np.array(y_trues)
