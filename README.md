@@ -1,5 +1,5 @@
-# WIP Repo for Comparing Acoustic Deep Neural Networks
-Come back in a few days for one-click setup and run
+# One-click setup and run
+Clone the repo and run setup.sh - it should set up the repo by downloading the dataset, installing requirements and running the demo training and inferencing file with 0.05 of entire dataset. 
 
 ## Architectures Compared:
 - MobileNetV1 (YAMNET, Transfer learned)
