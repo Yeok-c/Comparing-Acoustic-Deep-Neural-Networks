@@ -1,3 +1,5 @@
+# This repo contains the code to train, evaluate, transfer learn the several models and compare their performances
+
 # One-click setup and run
 Clone the repo and run setup.sh - it should set up the repo by downloading the dataset, installing requirements and running the demo training and inferencing file with 0.05 of entire dataset. 
 
